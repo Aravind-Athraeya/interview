@@ -1,110 +1,129 @@
-package com.interview.dynamic;
 
-/**
- * Date 03/02/2016
- * @author Tushar Roy
- *
- * Given n balloons, indexed from 0 to n-1. Each balloon is painted with a number on it represented
- * by array nums. You are asked to burst all the balloons. If the you burst balloon i you will
- * get nums[left] * nums[i] * nums[right] coins. Here left and right are adjacent indices of i. After the burst,
- * the left and right then becomes adjacent.
- * Find the maximum coins you can collect by bursting the balloons wisely.
- *
- * Time complexity O(n^3)
- * Space complexity O(n^2)
- *
- * Reference
- * https://leetcode.com/problems/burst-balloons/
- */
-public class BurstBalloons {
+#include "stdafx.h"
+#include <set>
+#include <iostream>
+#include<conio.h>
+#include <sstream>
+#include<stdio.h> 
+#include<stdlib.h>
+#include <queue>
+#include <unordered_set>
 
-    /**
-     * Dynamic programming solution.
-     */
-    public int maxCoinsBottomUpDp(int[] nums) {
-
-        int T[][] = new int[nums.length][nums.length];
-
-        for (int len = 1; len <= nums.length; len++) {
-            for (int i = 0; i <= nums.length - len; i++) {
-                int j = i + len - 1;
-                for (int k = i; k <= j; k++) {
-                    //leftValue/rightValue is initially 1. If there is element on
-                    // left/right of k then left/right value will take that value.
-                    int leftValue = 1;
-                    int rightValue = 1;
-                    if (i != 0) {
-                        leftValue = nums[i-1];
-                    }
-                    if (j != nums.length -1) {
-                        rightValue = nums[j+1];
-                    }
-
-                    //before is initially 0. If k is i then before will
-                    //stay 0 otherwise it gets value T[i][k-1]
-                    //after is similarly 0 initially. if k is j then after will
-                    //stay 0 other will get value T[k+1][j]
-                    int before = 0;
-                    int after = 0;
-                    if (i != k) {
-                        before = T[i][k-1];
-                    }
-                    if (j != k) {
-                        after = T[k+1][j];
-                    }
-                    T[i][j] = Math.max(leftValue * nums[k] * rightValue + before + after,
-                            T[i][j]);
-                }
-            }
-        }
-        return T[0][nums.length - 1];
-    }
-
-    /**
-     * Recursive solution.
-     */
-    public int maxCoinsRec(int nums[]) {
-        int[] nums1 = new int[nums.length + 2];
-        nums1[0] = 1;
-        nums1[nums1.length - 1] = 1;
-        for (int i = 0; i < nums.length; i++) {
-            nums1[i+1] = nums[i];
-        }
-        return maxCoinsRecUtil(nums1);
-    }
-
-    private int maxCoinsRecUtil(int[] nums) {
-        if (nums.length == 2) {
-            return 0;
-        }
-
-        int max = 0;
-        for (int i = 1; i < nums.length - 1; i++) {
-            int val = nums[i - 1]*nums[i]*nums[i+1] + maxCoinsRecUtil(formNewArray(nums, i));
-            if (val > max) {
-                max = val;
-            }
-         }
-        return max;
-
-    }
-
-    private int[] formNewArray(int[] input, int doNotIncludeIndex) {
-        int[] newArray = new int[input.length - 1];
-        int index = 0;
-        for (int i = 0; i < input.length; i++) {
-            if (i == doNotIncludeIndex) {
-                continue;
-            }
-            newArray[index++] = input[i];
-        }
-        return newArray;
-    }
+using namespace std;
 
 
-    public static void main(String args[]) {
-        BurstBalloons bb = new BurstBalloons();
-        int input[] = {2, 4, 3, 5};
-        System.out.print(bb.maxCoinsBottomUpDp(input));
-    }
+
+
+////
+////index:     0   1   2   3
+////       + -------------- - +
+////nums : 1 | 3 | 1 | 5 | 8 | 1
+////       + -------------- - +
+
+// Inutition//www.youtube.com/watch?v=o3-PUPXiVfI
+// Intuition - Think about when the last ballon is burst. 
+//Let's say an array -[3,1,5,8] and let assume 3 is the last ballon to be burst and [1,5,8] is already solved to get an optimal value for Max coins.
+// During the Last step - 1 [Value form bursting 3 + Optimal value of [1,5,8] 1
+// Optimal [Last balloon] =  1*3*1  + Opt[1,5,8] or in case on index 1*3*1  + Opt[1,3]
+// Optimal [Last balloon] = Max of { 1*3*1  + Opt[1,3],1*1*1  + Opt[0,0] + Opt[2,3],1*5*1 + Opt[0,1] + Opt[3,3],1*8*1  + Opt[0,2]}
+//Opt[1,3] = Max of {  3 *  1 * 1 + Opt[2,3], 3 * 5 * 1 + Opt[1,1 + Opt[3,3]], 3 * 8 * 1 + Opt[1,2]}//
+ // Full analysis - https://drive.google.com/open?id=0B3AN8dMNKcWVenUwTGN1bDlQVXVsMUhlUHBCRkZHc2x6WVhr
+// Fill up the diagnol elements first , so other values can be expressed as a function of that to find the maximum
+
+
+// Step 1: Find the dignal elements values
+// Use to the diagnol element values to find the other va
+
+#define M 4
+
+int BurstBallons(int balloons[], int length)
+{
+
+	int B[M + 2] = {0};
+
+	B[0] = 1; // One before the array
+	B[M + 1] = 1; // One after the array
+
+	// Copy values from A to B
+
+	for (int i = 1; i <= M; i++)
+		B[i] = balloons[i - 1];
+
+
+
+	// Algorthim
+
+
+	// Declare DP Array  [1,3,1,5,8,1]
+	int MaxGain[M + 2][M + 2] = {0};
+
+	 // Fill the diagonal elements
+	int counter = 1;
+	while (counter <= M)
+	{
+		// Degree one
+		MaxGain[counter][counter] = B[counter - 1] * B[counter] * B[counter + 1];
+		counter += 1;
+	}
+
+	//  optmization equation
+   //	First order filling -- 11,22,33,44
+   //   Second order Filling --  adjacent layers to diagonal 
+	//	MaxGain[i][j] = MaxOf{ B[i - 1] * B[i] * B[i + 1] + MaxGain[i][i], B[j - 1] * B[j] * B[j + 1] + MaxGain[j][j] }
+
+	// 
+	for (int i = 1; i < M - 2; i++)
+	{ 
+		int order = 0;
+		for (int degree = 1; degree <= M - 1; degree++) 
+		{
+			int offset = degree - 1, MaxGainTillNow = 0;
+			for (int j = 0; j <= i; j++) 
+			{							
+				int c = B[i - 1 + offset] * B[i + j + offset] * B[i + offset + 2] + MaxGain[i + degree - j][i + degree - j];
+				if (MaxGainTillNow < c)
+					MaxGainTillNow = c;
+			}
+			order = order + 1;
+			MaxGain[order][order + i] = MaxGain[order + i][order] = MaxGainTillNow;
+			
+			// Updating both sides of the diagonal
+
+		}
+
+
+
+		}
+
+
+
+		
+	////
+	////index:  0  1   2   3   4  5
+	////       + -------------- - +
+	////nums : 1 | 3 | 1 | 5 | 8 | 1
+	////       + -------------- - +
+
+
+
+
+	MaxGain[counter][counter];
+	
+	return MaxGain[1][M];
+
+
+}
+
+
+int main()
+{
+	int A[] = { 3,1,5,8};
+
+	// Size of the array 
+	int N = sizeof(A) / sizeof(A[0]);
+
+	// Calling function 
+	cout << BurstBallons(A, N) << endl;
+	return 0;
+
 }
